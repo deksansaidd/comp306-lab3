@@ -1,0 +1,30 @@
+﻿@model List<LearningPortal.Models.LearningResource>
+@{
+    ViewData["Title"] = "Learning Resources";
+}
+
+<h2 class="mb-3">Learning Resources</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Author</th>
+            <th>Created</th>
+            <th>Views</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.Title</td>
+                <td>@r.Category.CategoryName</td>
+                <td>@r.Author.Username</td>
+                <td>@r.CreatedDate.ToString("yyyy-MM-dd")</td>
+                <td>@r.ViewCount</td>
+            </tr>
+        }
+    </tbody>
+</table>
