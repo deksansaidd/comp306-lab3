@@ -1,29 +1,37 @@
 ﻿@model List<LearningPortal.Models.LearningResource>
 @{
     ViewData["Title"] = "Learning Resources";
+    int currentUserId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
 }
 
-<h2 class="mb-3">Learning Resources</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Learning Resources</h2>
+    @if (User.IsInRole("Instructor"))
+    {
+        <a asp-action="Create" class="btn btn-success">Add resource</a>
+    }
+</div>
 
-<table class="table table-striped">
+<table class="table table-striped align-middle">
     <thead>
-        <tr>
-            <th>Title</th>
-            <th>Category</th>
-            <th>Author</th>
-            <th>Created</th>
-            <th>Views</th>
-        </tr>
+        <tr><th>Title</th><th>Category</th><th>Author</th><th>Created</th><th>Views</th><th></th></tr>
     </thead>
     <tbody>
         @foreach (var r in Model)
         {
             <tr>
-                <td>@r.Title</td>
+                <td><a asp-action="Details" asp-route-id="@r.ResourceId">@r.Title</a></td>
                 <td>@r.Category.CategoryName</td>
                 <td>@r.Author.Username</td>
                 <td>@r.CreatedDate.ToString("yyyy-MM-dd")</td>
                 <td>@r.ViewCount</td>
+                <td class="text-end">
+                    @if (r.AuthorId == currentUserId)
+                    {
+                        <a asp-action="Edit" asp-route-id="@r.ResourceId" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@r.ResourceId" class="btn btn-sm btn-outline-danger">Delete</a>
+                    }
+                </td>
             </tr>
         }
     </tbody>

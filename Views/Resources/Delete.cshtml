@@ -1,0 +1,13 @@
+﻿@model LearningPortal.Models.LearningResource
+@{
+    ViewData["Title"] = "Delete resource";
+}
+
+<h2 class="text-danger">Delete resource</h2>
+<p>Are you sure you want to delete <strong>@Model.Title</strong>? The uploaded file will also be removed from S3.</p>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" name="id" value="@Model.ResourceId" />
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a asp-action="Details" asp-route-id="@Model.ResourceId" class="btn btn-secondary">Cancel</a>
+</form>

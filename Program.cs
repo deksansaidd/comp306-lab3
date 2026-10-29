@@ -1,9 +1,13 @@
 using LearningPortal.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Amazon.S3;
+using LearningPortal.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<IAmazonS3>(_ => AwsFactory.CreateS3());
+builder.Services.AddScoped<IFileStorage, S3FileStorage>();
 builder.Services.AddControllersWithViews();
 
 var connectionString = builder.Configuration.GetConnectionString("LearningPortal");

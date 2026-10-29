@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.109" />
-    <PackageReference Include="AWSSDK.S3" Version="4.0.104.5" />
-    <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="4.0.104.5" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.109.3" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.104.8" />
+    <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="4.0.104.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.*">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

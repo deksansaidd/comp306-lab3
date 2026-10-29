@@ -1,0 +1,24 @@
+﻿@model LearningPortal.Models.LearningResource
+@{
+    ViewData["Title"] = Model.Title;
+    int currentUserId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+}
+
+<h2>@Model.Title</h2>
+<p class="text-muted">
+    @Model.Category.CategoryName &middot; by @Model.Author.Username &middot;
+    @Model.CreatedDate.ToString("yyyy-MM-dd") &middot; @Model.ViewCount views
+</p>
+<p>@Model.Description</p>
+
+<div class="mb-3">
+    <a asp-action="Download" asp-route-id="@Model.ResourceId" asp-route-inline="true" target="_blank" class="btn btn-primary">Open</a>
+    <a asp-action="Download" asp-route-id="@Model.ResourceId" class="btn btn-outline-primary">Download</a>
+    @if (Model.AuthorId == currentUserId)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.ResourceId" class="btn btn-outline-secondary">Edit</a>
+        <a asp-action="Delete" asp-route-id="@Model.ResourceId" class="btn btn-outline-danger">Delete</a>
+    }
+</div>
+
+<a asp-action="Index">Back to the list</a>

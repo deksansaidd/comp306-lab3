@@ -11,6 +11,8 @@ namespace LearningPortal.Controllers;
 
 public class AccountController : Controller
 {
+    public IActionResult AccessDenied() => View();
+
     private readonly LearningPortalContext _db;
 
     public AccountController(LearningPortalContext db)
