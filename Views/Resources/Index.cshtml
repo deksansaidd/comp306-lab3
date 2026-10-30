@@ -1,38 +1,163 @@
 ﻿@model List<LearningPortal.Models.LearningResource>
+@using LearningPortal.Models
+@using System.Security.Claims
+
 @{
     ViewData["Title"] = "Learning Resources";
-    int currentUserId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+
+    int currentUserId = int.Parse(
+        User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    var categories = ViewBag.Categories as List<Category>
+        ?? new List<Category>();
+
+    string search = ViewBag.Search as string ?? "";
+    int? selectedCategory = ViewBag.CategoryId as int?;
+    string sort = ViewBag.Sort as string ?? "newest";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Learning Resources</h2>
+
     @if (User.IsInRole("Instructor"))
     {
-        <a asp-action="Create" class="btn btn-success">Add resource</a>
+        <a asp-action="Create" class="btn btn-success">
+            Add resource
+        </a>
     }
 </div>
 
-<table class="table table-striped align-middle">
-    <thead>
-        <tr><th>Title</th><th>Category</th><th>Author</th><th>Created</th><th>Views</th><th></th></tr>
-    </thead>
-    <tbody>
-        @foreach (var r in Model)
-        {
+<!-- SEARCH, FILTER AND SORT -->
+<form asp-controller="Resources"
+      asp-action="Index"
+      method="get"
+      class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <label for="search" class="form-label">Search</label>
+        <input type="text"
+               id="search"
+               name="search"
+               value="@search"
+               class="form-control"
+               placeholder="Search title or author..." />
+    </div>
+
+    <div class="col-md-3">
+        <label for="categoryId" class="form-label">Category</label>
+        <select id="categoryId"
+                name="categoryId"
+                class="form-select">
+
+            <option value="">All categories</option>
+
+            @foreach (var category in categories)
+            {
+                if (selectedCategory == category.CategoryId)
+                {
+                    <option value="@category.CategoryId" selected>
+                        @category.CategoryName
+                    </option>
+                }
+                else
+                {
+                    <option value="@category.CategoryId">
+                        @category.CategoryName
+                    </option>
+                }
+            }
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label for="sort" class="form-label">Sort by</label>
+        <select id="sort"
+                name="sort"
+                class="form-select">
+
+            <option value="newest"
+                    selected="@(sort == "newest")">
+                Newest first
+            </option>
+
+            <option value="oldest"
+                    selected="@(sort == "oldest")">
+                Oldest first
+            </option>
+
+            <option value="popular"
+                    selected="@(sort == "popular")">
+                Most popular
+            </option>
+        </select>
+    </div>
+
+    <div class="col-md-2 d-flex align-items-end gap-2">
+        <button type="submit" class="btn btn-primary">
+            Apply
+        </button>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            Reset
+        </a>
+    </div>
+</form>
+
+<!-- RESOURCE TABLE -->
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No resources found matching your search or filters.
+    </div>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
             <tr>
-                <td><a asp-action="Details" asp-route-id="@r.ResourceId">@r.Title</a></td>
-                <td>@r.Category.CategoryName</td>
-                <td>@r.Author.Username</td>
-                <td>@r.CreatedDate.ToString("yyyy-MM-dd")</td>
-                <td>@r.ViewCount</td>
-                <td class="text-end">
-                    @if (r.AuthorId == currentUserId)
-                    {
-                        <a asp-action="Edit" asp-route-id="@r.ResourceId" class="btn btn-sm btn-outline-primary">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@r.ResourceId" class="btn btn-sm btn-outline-danger">Delete</a>
-                    }
-                </td>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Author</th>
+                <th>Created</th>
+                <th>Views</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>
+                        <a asp-action="Details"
+                           asp-route-id="@r.ResourceId">
+                            @r.Title
+                        </a>
+                    </td>
+
+                    <td>@r.Category.CategoryName</td>
+                    <td>@r.Author.Username</td>
+                    <td>@r.CreatedDate.ToString("yyyy-MM-dd")</td>
+                    <td>@r.ViewCount</td>
+
+                    <td class="text-end">
+                        @if (User.IsInRole("Instructor") &&
+                             r.AuthorId == currentUserId)
+                        {
+                            <a asp-action="Edit"
+                               asp-route-id="@r.ResourceId"
+                               class="btn btn-sm btn-outline-primary">
+                                Edit
+                            </a>
+
+                            <a asp-action="Delete"
+                               asp-route-id="@r.ResourceId"
+                               class="btn btn-sm btn-outline-danger">
+                                Delete
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

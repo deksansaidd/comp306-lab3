@@ -17,6 +17,18 @@ public class ResourcesController : Controller
 
     private readonly LearningPortalContext _db;
     private readonly IFileStorage _files;
+    private readonly CommentService _comments;
+
+    public ResourcesController(
+        LearningPortalContext db,
+        IFileStorage files,
+        CommentService comments)
+    {
+        _db = db;
+        _files = files;
+        _comments = comments;
+    }
+
 
     public ResourcesController(LearningPortalContext db, IFileStorage files)
     {
@@ -27,17 +39,62 @@ public class ResourcesController : Controller
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     // ---------- LIST ----------
-    public async Task<IActionResult> Index()
+
+    public async Task<IActionResult> Index(
+        string? search,
+        int? categoryId,
+        string sort = "newest")
     {
-        var resources = await _db.LearningResources
+        var query = _db.LearningResources
             .Include(r => r.Category)
             .Include(r => r.Author)
             .AsNoTracking()
-            .OrderByDescending(r => r.CreatedDate)
+            .AsQueryable();
+
+        // Search by title or author's username
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            string term = search.Trim();
+
+            query = query.Where(r =>
+                r.Title.Contains(term) ||
+                r.Author.Username.Contains(term));
+        }
+
+        // Filter by category
+        if (categoryId.HasValue)
+        {
+            query = query.Where(r =>
+                r.CategoryId == categoryId.Value);
+        }
+
+        // Sort resources
+        query = sort switch
+        {
+            "popular" => query
+                .OrderByDescending(r => r.ViewCount)
+                .ThenByDescending(r => r.CreatedDate),
+
+            "oldest" => query
+                .OrderBy(r => r.CreatedDate),
+
+            _ => query
+                .OrderByDescending(r => r.CreatedDate)
+        };
+
+        ViewBag.Search = search;
+        ViewBag.CategoryId = categoryId;
+        ViewBag.Sort = sort;
+
+        ViewBag.Categories = await _db.Categories
+            .OrderBy(c => c.CategoryName)
             .ToListAsync();
+
+        var resources = await query.ToListAsync();
 
         return View(resources);
     }
+
 
     // ---------- DETAILS (counts one view) ----------
     public async Task<IActionResult> Details(int id, bool noCount = false)
@@ -57,6 +114,9 @@ public class ResourcesController : Controller
             .FirstOrDefaultAsync(r => r.ResourceId == id);
 
         if (resource == null) return NotFound();
+
+        ViewBag.Comments = await _comments.GetCommentsAsync(id);
+
         return View(resource);
     }
 

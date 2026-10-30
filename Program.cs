@@ -9,9 +9,30 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IAmazonS3>(_ => AwsFactory.CreateS3());
 builder.Services.AddScoped<IFileStorage, S3FileStorage>();
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<CommentService>();
 
-var connectionString = builder.Configuration.GetConnectionString("LearningPortal");
-builder.Services.AddDbContext<LearningPortalContext>(options => options.UseSqlServer(connectionString));
+
+string? connectionString =
+    builder.Configuration.GetConnectionString("LearningPortal");
+
+// Retrieve the database connection string from AWS
+// when running outside the Development environment.
+if (!builder.Environment.IsDevelopment())
+{
+    var provider = new ConnectionStringProvider();
+
+    connectionString = await provider.GetConnectionStringAsync();
+}
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "The LearningPortal database connection string is missing.");
+}
+
+builder.Services.AddDbContext<LearningPortalContext>(
+    options => options.UseSqlServer(connectionString));
+
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
