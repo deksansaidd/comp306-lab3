@@ -103,11 +103,19 @@ else
                                    name="commentId"
                                    value="@comment.CommentId" />
 
-                            <textarea name="text"
+                            
+                            <label for="edit-comment-@comment.CommentId"
+                                   class="form-label">
+                                Edit your comment
+                            </label>
+
+                            <textarea id="edit-comment-@comment.CommentId"
+                                      name="text"
                                       class="form-control mb-2"
                                       rows="3"
                                       maxlength="1000"
                                       required>@comment.Text</textarea>
+
 
                             <button type="submit"
                                     class="btn btn-primary btn-sm">
@@ -134,12 +142,19 @@ else
            value="@Model.ResourceId" />
 
     <div class="mb-3">
-        <textarea name="text"
+
+        <label for="new-comment" class="form-label">
+            Write a comment
+        </label>
+
+        <textarea id="new-comment"
+                  name="text"
                   class="form-control"
                   rows="4"
                   maxlength="1000"
                   placeholder="Write your comment..."
                   required></textarea>
+
     </div>
 
     <button type="submit" class="btn btn-primary">
