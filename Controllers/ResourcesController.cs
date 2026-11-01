@@ -29,13 +29,6 @@ public class ResourcesController : Controller
         _comments = comments;
     }
 
-
-    public ResourcesController(LearningPortalContext db, IFileStorage files)
-    {
-        _db = db;
-        _files = files;
-    }
-
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     // ---------- LIST ----------
